@@ -694,8 +694,10 @@ func (p *MediaPlaylist) Encode() *bytes.Buffer {
 		if seg.Limit > 0 {
 			p.buf.WriteString("#EXT-X-BYTERANGE:")
 			p.buf.WriteString(strconv.FormatInt(seg.Limit, 10))
-			p.buf.WriteRune('@')
-			p.buf.WriteString(strconv.FormatInt(seg.Offset, 10))
+			if seg.Offset >= 0 {
+				p.buf.WriteRune('@')
+				p.buf.WriteString(strconv.FormatInt(seg.Offset, 10))
+			}
 			p.buf.WriteRune('\n')
 		}
 
