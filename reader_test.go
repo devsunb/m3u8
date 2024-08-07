@@ -1,11 +1,11 @@
 /*
- Playlist parsing tests.
+Playlist parsing tests.
 
- Copyright 2013-2019 The Project Developers.
- See the AUTHORS and LICENSE files at the top-level directory of this distribution
- and at https://github.com/grafov/m3u8/
+Copyright 2013-2019 The Project Developers.
+See the AUTHORS and LICENSE files at the top-level directory of this distribution
+and at https://github.com/grafov/m3u8/
 
- ॐ तारे तुत्तारे तुरे स्व
+ॐ तारे तुत्तारे तुरे स्व
 */
 package m3u8
 
@@ -305,7 +305,7 @@ func TestDecodeMediaPlaylist(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	//fmt.Printf("Playlist object: %+v\n", p)
+
 	// check parsed values
 	if p.ver != 3 {
 		t.Errorf("Version of parsed playlist = %d (must = 3)", p.ver)
@@ -335,7 +335,7 @@ func TestDecodeMediaPlaylist(t *testing.T) {
 		}
 	}
 	// TODO check other values…
-	//fmt.Println(p.Encode().String()), stream.Name}
+	// fmt.Println(p.Encode().String()), stream.Name}
 }
 
 func TestDecodeMediaPlaylistExtInfNonStrict2(t *testing.T) {
@@ -402,7 +402,6 @@ func TestDecodeMediaPlaylistWithWidevine(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	//fmt.Printf("Playlist object: %+v\n", p)
 	// check parsed values
 	if p.ver != 2 {
 		t.Errorf("Version of parsed playlist = %d (must = 2)", p.ver)
@@ -410,9 +409,32 @@ func TestDecodeMediaPlaylistWithWidevine(t *testing.T) {
 	if p.TargetDuration != 9 {
 		t.Errorf("TargetDuration of parsed playlist = %f (must = 9.0)", p.TargetDuration)
 	}
-	// TODO check other values…
-	//fmt.Printf("%+v\n", p.Key)
-	//fmt.Println(p.Encode().String())
+}
+
+// https://datatracker.ietf.org/doc/html/rfc8216#section-4.3.2.4
+func TestDecodeMediaPlaylistWithMultipleKeys(t *testing.T) {
+	f, err := os.Open("sample-playlists/multiple-keys.m3u8")
+	if err != nil {
+		t.Fatal(err)
+	}
+	p, err := NewMediaPlaylist(5, 798)
+	if err != nil {
+		t.Fatalf("Create media playlist failed: %s", err)
+	}
+	err = p.DecodeFrom(bufio.NewReader(f), true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// check parsed values
+	if p.ver != 6 {
+		t.Errorf("Version of parsed playlist = %d (must = 6)", p.ver)
+	}
+	if p.TargetDuration != 11 {
+		t.Errorf("TargetDuration of parsed playlist = %f (must = 11.0)", p.TargetDuration)
+	}
+	if len(p.Keys) != 2 {
+		t.Errorf("Number of keys = %d (must = 2)", len(p.Keys))
+	}
 }
 
 func TestDecodeMasterPlaylistWithAutodetection(t *testing.T) {
@@ -428,11 +450,6 @@ func TestDecodeMasterPlaylistWithAutodetection(t *testing.T) {
 		t.Error("Sample not recognized as master playlist.")
 	}
 	mp := m.(*MasterPlaylist)
-	// fmt.Printf(">%+v\n", mp)
-	// for _, v := range mp.Variants {
-	//	fmt.Printf(">>%+v +v\n", v)
-	// }
-	//fmt.Println("Type below must be MasterPlaylist:")
 	CheckType(t, mp)
 }
 
@@ -492,7 +509,7 @@ func TestDecodeMediaPlaylistAutoDetectExtend(t *testing.T) {
 // timeZone in formats '±00:00', '±0000', '±00'
 // m3u8.FullTimeParse()
 func TestFullTimeParse(t *testing.T) {
-	var timestamps = []struct {
+	timestamps := []struct {
 		name  string
 		value string
 	}{
@@ -520,7 +537,7 @@ func TestFullTimeParse(t *testing.T) {
 // timeZone in formats '±00:00', '±0000', '±00'
 // m3u8.StrictTimeParse()
 func TestStrictTimeParse(t *testing.T) {
-	var timestamps = []struct {
+	timestamps := []struct {
 		name  string
 		value string
 	}{
@@ -640,7 +657,6 @@ func TestDecodeMasterPlaylistWithCustomTags(t *testing.T) {
 
 	for _, testCase := range cases {
 		f, err := os.Open(testCase.src)
-
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -747,7 +763,6 @@ func TestDecodeMediaPlaylistWithCustomTags(t *testing.T) {
 
 	for _, testCase := range cases {
 		f, err := os.Open(testCase.src)
-
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -931,10 +946,12 @@ func TestDecodeMediaPlaylistWithProgramDateTime(t *testing.T) {
 		t.Error("Media sequence defined in sample playlist is 0")
 	}
 
-	segNames := []string{"20181231/0555e0c371ea801726b92512c331399d_00000000.ts",
+	segNames := []string{
+		"20181231/0555e0c371ea801726b92512c331399d_00000000.ts",
 		"20181231/0555e0c371ea801726b92512c331399d_00000001.ts",
 		"20181231/0555e0c371ea801726b92512c331399d_00000002.ts",
-		"20181231/0555e0c371ea801726b92512c331399d_00000003.ts"}
+		"20181231/0555e0c371ea801726b92512c331399d_00000003.ts",
+	}
 	if pp.Count() != uint(len(segNames)) {
 		t.Errorf("Segments in playlist %d != %d", pp.Count(), len(segNames))
 	}
